@@ -124,15 +124,6 @@ ___TEMPLATE_PARAMETERS___
     "defaultValue": false
   },
   {
-    "type": "CHECKBOX",
-    "name": "usingAllPageTrigger",
-    "checkboxText": "Using All Page Trigger",
-    "simpleValueType": true,
-    "help": "If you are using an all page trigger, check this box.",
-    "alwaysInSummary": true,
-    "defaultValue": true
-  },
-  {
     "type": "TEXT",
     "name": "awinChannelCookieDomain",
     "displayName": "AwinChannelCookie Domain",
@@ -171,6 +162,12 @@ const log = require('logToConsole');
 const getEventData = require('getEventData');
 const assertThat = require('assertThat');
 const JSON = require('JSON');
+const getTimestampMillis = require ('getTimestampMillis');
+
+const sendHttpRequest = require('sendHttpRequest');
+const setResponseBody = require('setResponseBody');
+const setResponseHeader = require('setResponseHeader');
+const setResponseStatus = require('setResponseStatus');
 
 //Variables from input fields
 const cookiePeriod = data.cookiePeriod;
@@ -180,7 +177,6 @@ const organicFilter = data.organicFilter;
 const awinSource = data.awinSource.split(",");
 const parseUrl = require('parseUrl');
 const awinChannelCookieDomain = data.awinChannelCookieDomain;
-const usingAllPageTrigger = data.usingAllPageTrigger;
 
 //URL variables. 
 let referrer = getEventData('page_referrer'); // This will return the referrer URL for deduping agains organic.
@@ -189,7 +185,7 @@ let urlObject = parseUrl(URL); // This object contains the components of the URL
 let origin = urlObject.origin; // Returns the origin
 let cookieDomain = ""; // The domain for the AwinChannel cookie, will consider subdomains
 let urlParts = urlObject.host.split("."); //Used to split the host, and get only the relevant data for the cookieDomain 
-const queryParamsObject = parseUrl(URL).searchParams;//Retrieves the search parameters from the URL. Used to look for the given used source parameters
+const queryParamsObject = parseUrl(URL).searchParams;
 
 //Internal script variables
 let sourceValue = "";
@@ -198,10 +194,15 @@ let matchedSourceParameter = "na";
 let queryValues = "";
 let containsAwaid;
 let cookieLength;
+let isOrganicJourney;
 
 //Contains function will take a string and a substring, and check if the substring is contained in the given string. This functionality is not offered by Sandboxed JavaScript by default.
 const Contains = function (string, substring){
   let contains = false;
+  if(string == undefined || substring == undefined){
+    log("String => " + string + " | Substring => " + substring);
+    return;
+  }
   const stringCharacters = string.split("");
   const substringCharacters = substring.split("");
   let substringMatchedCharacters = substringCharacters.length;
@@ -235,28 +236,50 @@ const Contains = function (string, substring){
 
 let websiteDomain = "." + urlObject.hostname;
 
+let options = {};
+
 //Check if the cookie should be a session cookie or not.
 if(cookiePeriod == 0){
-  cookieLength = "";
+  options = {
+    'domain': 'auto',
+    'path': '/',
+    'secure': true,
+    'httpOnly':true
+  };
 } else {
   cookieLength = 60*60*24*cookiePeriod;
+  options = {
+    'domain': 'auto',
+    'path': '/',
+    'max-age': cookieLength,
+    'secure': true,
+    'httpOnly':true
+  };
 }
 
-const options = {
-  domain: 'auto',
-  path: '/',
-  'max-age': cookieLength,
-  secure: false,
-  httpOnly:true
-};
-  
+//Console log and debug section
+function TagFired(){
+  const timestamp = getTimestampMillis();
+  log("AwinLastClickIdentifierDebug=true&ServerSide=true&timestamp=" + timestamp + "&sourceParameterValue=" + matchedSourceParameter + "&expectedCookieValue=" + awLastClick + "&cookieName=" + cookieName + "&referrerURL=" + referrer); 
+}
+
 function SetChannelCookie(){
+  //Check if the cookise should be a session cookie, and if the user is out of an Awin session, if so, hault the progress of the tag.
+  if(cookiePeriod == 0 && matchedSourceParameter == "na" && !isOrganicJourney && !getCookie(cookieName)[0]){
+    awLastClick = "direct";
+    setCookie(cookieName, awLastClick, options, false);
+    TagFired();
+    data.gtmOnSuccess();
+    return;
+  }
+  TagFired();
   setCookie(cookieName, awLastClick, options, false);
 }
 
 //Since the tag now uses an all pages trigger, it needs to know if the user is simply navigating through the website, or visiting it for the first time in his journey.
-if(referrer != undefined && usingAllPageTrigger && Contains(referrer,websiteDomain)){
+if(referrer != undefined && Contains(referrer,websiteDomain)){
   //Navigating through website, halt the progress of the tag.
+  
   data.gtmOnSuccess();
 } else {
   //First visit in the session, proceed with tag behaviour.
@@ -279,18 +302,10 @@ if(referrer != undefined && usingAllPageTrigger && Contains(referrer,websiteDoma
         return;
       }
     }
-  }
-  
-  //Check if the cookise should be a session cookie, and if the user is out of an Awin session, if so, hault the progress of the tag.
-  
-  if(cookiePeriod == 0 && matchedSourceParameter == "na"){
-    data.gtmOnSuccess();
-    return;
-  }
+  }  
   
   //Check if advertiser enabled the organic filter or not.
   if(organicFilter == true){
-    
     for(var i = 0; i < awinSource.length; i++){
       //Try to find the given Awin Source Values in the matched source parameter.
       if (Contains(matchedSourceParameter.toLowerCase(), awinSource[i].toLowerCase())){
@@ -298,7 +313,8 @@ if(referrer != undefined && usingAllPageTrigger && Contains(referrer,websiteDoma
         SetChannelCookie();
         break;
       } else if(Contains(referrer, "google") || Contains(referrer, "bing") || Contains(referrer, "yahoo") || Contains(referrer, "yandex") || Contains(referrer, "duckduckgo")){
-        awLastClick = "other";
+        awLastClick = "organic";
+        isOrganicJourney = true;
         SetChannelCookie(); 
       } else if(matchedSourceParameter.toLowerCase() != "na" && matchedSourceParameter.toLowerCase() != awinSource[i].toLowerCase()){
         awLastClick = "other";
@@ -306,6 +322,7 @@ if(referrer != undefined && usingAllPageTrigger && Contains(referrer,websiteDoma
       }
     }
   } else {
+    TagFired("organicFalse");
     //Advertiser did not enable the organic trigger, proceed with normal last paid click checks.
     for(var i = 0; i < awinSource.length; i++){
       if (Contains(matchedSourceParameter.toLowerCase(), awinSource[i].toLowerCase())) {
@@ -319,16 +336,15 @@ if(referrer != undefined && usingAllPageTrigger && Contains(referrer,websiteDoma
     }
   }
   
-  //Check if no cookie was created, this means the user didn't interact with any medias, default cookie to "aw".
-  if(!getCookie(cookieName)[0] && awLastClick == ""){
-    awLastClick = "undefined";
+  //Check if no cookie was created, this means the user didn't interact with any medias, default cookie to "undefined".
+  if(!getCookie(cookieName)[0] && matchedSourceParameter == "na"){
+    awLastClick = "direct";
     SetChannelCookie();
   }
   
   // Call data.gtmOnSuccess when the tag is finished.
   data.gtmOnSuccess();
 }
-
 
 ___SERVER_PERMISSIONS___
 
