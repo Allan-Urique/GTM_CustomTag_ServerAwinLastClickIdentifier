@@ -176,13 +176,13 @@ const sourceParameters = data.sourceParameters.split(",");
 const organicFilter = data.organicFilter;
 const awinSource = data.awinSource.split(",");
 const parseUrl = require('parseUrl');
+const overwriteCookieDomain = data.overwriteCookieDomain;
 const awinChannelCookieDomain = data.awinChannelCookieDomain;
 
 //URL variables. 
 let referrer = getEventData('page_referrer'); // This will return the referrer URL for deduping agains organic.
 let URL = data.pageURL; // This will return the current URL
 let urlObject = parseUrl(URL); // This object contains the components of the URL, will be used to retrieve specific parts of it.
-let origin = urlObject.origin; // Returns the origin
 let cookieDomain = ""; // The domain for the AwinChannel cookie, will consider subdomains
 let urlParts = urlObject.host.split("."); //Used to split the host, and get only the relevant data for the cookieDomain 
 const queryParamsObject = parseUrl(URL).searchParams;
@@ -234,14 +234,30 @@ const Contains = function (string, substring){
   return contains;
 };
 
-let websiteDomain = "." + urlObject.hostname;
+if(overwriteCookieDomain){
+  cookieDomain = awinChannelCookieDomain;
+} else {
+  for(var i = 0; i < urlParts.length; i++){
+    if(urlParts[i] != "www"){
+      cookieDomain += "." + urlParts[i]; 
+    }
+  }
+}
+
+let websiteDomain = "";
+
+if(cookieDomain.substring(0, 1) == "."){
+  websiteDomain = cookieDomain.substring(1);
+} else {
+  websiteDomain = cookieDomain;
+}
 
 let options = {};
 
 //Check if the cookie should be a session cookie or not.
 if(cookiePeriod == 0){
   options = {
-    'domain': 'auto',
+    'domain': cookieDomain,
     'path': '/',
     'secure': true,
     'httpOnly':true
@@ -249,7 +265,7 @@ if(cookiePeriod == 0){
 } else {
   cookieLength = 60*60*24*cookiePeriod;
   options = {
-    'domain': 'auto',
+    'domain': cookieDomain,
     'path': '/',
     'max-age': cookieLength,
     'secure': true,
