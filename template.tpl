@@ -144,10 +144,16 @@ ___TEMPLATE_PARAMETERS___
     "displayName": "ServerAwinChannelCookie Domain",
     "simpleValueType": true,
     "alwaysInSummary": true,
-    "help": "The domain where the ServerAwinChannelCookie will be created. Should be something like \".exampleURL.com\"",
+    "help": "The domain where the ServerAwinChannelCookie will be created. Should be something like \".exampleURL.com\", no \"https://\" or \"www\".",
     "valueValidators": [
       {
         "type": "NON_EMPTY"
+      },
+      {
+        "type": "REGEX",
+        "args": [
+          "^(?!.*https://)(?!.*\\/)(?!.*www).+$"
+        ]
       }
     ],
     "enablingConditions": [
@@ -172,11 +178,6 @@ const getEventData = require('getEventData');
 const assertThat = require('assertThat');
 const JSON = require('JSON');
 const getTimestampMillis = require ('getTimestampMillis');
-
-const sendHttpRequest = require('sendHttpRequest');
-const setResponseBody = require('setResponseBody');
-const setResponseHeader = require('setResponseHeader');
-const setResponseStatus = require('setResponseStatus');
 
 //Variables from input fields
 const cookiePeriod = data.cookiePeriod;
@@ -245,6 +246,9 @@ const Contains = function (string, substring){
 
 if(overwriteCookieDomain){
   cookieDomain = awinChannelCookieDomain;
+  if(cookieDomain.substring(0, 1) != "."){
+    cookieDomain = "." + awinChannelCookieDomain;
+  }
 } else {
   for(var i = 0; i < urlParts.length; i++){
     if(urlParts[i] != "www"){
@@ -370,6 +374,7 @@ if(referrer != undefined && Contains(referrer,websiteDomain)){
   // Call data.gtmOnSuccess when the tag is finished.
   data.gtmOnSuccess();
 }
+
 
 ___SERVER_PERMISSIONS___
 
@@ -507,7 +512,6 @@ ___SERVER_PERMISSIONS___
     "isRequired": true
   }
 ]
-
 
 ___TESTS___
 
