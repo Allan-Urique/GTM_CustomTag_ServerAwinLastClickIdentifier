@@ -148,6 +148,35 @@ ___TEMPLATE_PARAMETERS___
     "name": "pageURL",
     "displayName": "Page URL",
     "simpleValueType": true
+  },
+  {
+    "type": "CHECKBOX",
+    "name": "overwriteCookieDomain",
+    "checkboxText": "Overwrite Cookie Domain",
+    "simpleValueType": true,
+    "help": "If enabled, will let you manually set the AwinChannelCookie\u0027s domain.",
+    "alwaysInSummary": true,
+    "defaultValue": false
+  },
+  {
+    "type": "TEXT",
+    "name": "awinChannelCookieDomain",
+    "displayName": "AwinChannelCookie Domain",
+    "simpleValueType": true,
+    "alwaysInSummary": true,
+    "help": "The domain where the AwinChannelCookie will be created. Should be something like \".exampleURL.com\"",
+    "valueValidators": [
+      {
+        "type": "NON_EMPTY"
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "overwriteCookieDomain",
+        "paramValue": true,
+        "type": "EQUALS"
+      }
+    ]
   }
 ]
 
