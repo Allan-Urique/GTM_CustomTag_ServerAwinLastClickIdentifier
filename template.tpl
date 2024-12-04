@@ -125,26 +125,6 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "TEXT",
-    "name": "awinChannelCookieDomain",
-    "displayName": "AwinChannelCookie Domain",
-    "simpleValueType": true,
-    "alwaysInSummary": true,
-    "help": "The domain where the AwinChannelCookie will be created. Should be something like \".exampleURL.com\"",
-    "valueValidators": [
-      {
-        "type": "NON_EMPTY"
-      }
-    ],
-    "enablingConditions": [
-      {
-        "paramName": "overwriteCookieDomain",
-        "paramValue": true,
-        "type": "EQUALS"
-      }
-    ]
-  },
-  {
-    "type": "TEXT",
     "name": "pageURL",
     "displayName": "Page URL",
     "simpleValueType": true
