@@ -134,17 +134,17 @@ ___TEMPLATE_PARAMETERS___
     "name": "overwriteCookieDomain",
     "checkboxText": "Overwrite Cookie Domain",
     "simpleValueType": true,
-    "help": "If enabled, will let you manually set the AwinChannelCookie\u0027s domain.",
+    "help": "If enabled, will let you manually set the ServerAwinChannelCookie\u0027s domain.",
     "alwaysInSummary": true,
     "defaultValue": false
   },
   {
     "type": "TEXT",
     "name": "awinChannelCookieDomain",
-    "displayName": "AwinChannelCookie Domain",
+    "displayName": "ServerAwinChannelCookie Domain",
     "simpleValueType": true,
     "alwaysInSummary": true,
-    "help": "The domain where the AwinChannelCookie will be created. Should be something like \".exampleURL.com\"",
+    "help": "The domain where the ServerAwinChannelCookie will be created. Should be something like \".exampleURL.com\"",
     "valueValidators": [
       {
         "type": "NON_EMPTY"
