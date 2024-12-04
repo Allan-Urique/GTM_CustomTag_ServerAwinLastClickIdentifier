@@ -2,9 +2,11 @@ homepage: "https://www.awin.com"
 documentation: "https://www.awin.com"
 versions:
 # Latest version
+  - sha: bf4c948cb74abf09040a6da16c31ea0f2b00cb66
+    changeNotes: "Added overwrite cookie domain functionality"
+# Older versions
   - sha: 1d1f1dd94280c6f82e597ecc33d9ae48f95eab9a
     changeNotes: "Updated template to add logging and debugging capabilities as well as fixed some bugs and removed unused features"
-# Older versions
   - sha: 8622981fa07be20a2ec2fe4e9e0a0ac35ee703c3
     changeNotes: "Updating SHA"
   - sha: 6c31cf3db6ba85b1a5d78399bb52cf5bfda6f5db
