@@ -78,7 +78,7 @@ ___TEMPLATE_PARAMETERS___
     "name": "sourceParameters",
     "displayName": "Used Source Parameters",
     "simpleValueType": true,
-    "defaultValue": "utm_source,gclid,fbclid",
+    "defaultValue": "utm_source,source,gclid,fbclid",
     "alwaysInSummary": true,
     "valueValidators": [
       {
@@ -100,7 +100,7 @@ ___TEMPLATE_PARAMETERS___
     "displayName": "Awin Source Values",
     "simpleValueType": true,
     "alwaysInSummary": true,
-    "defaultValue": "awin",
+    "defaultValue": "awin,aw",
     "help": "The value passed inside the source parameter used in Awin links. Leave this as \"awin\" if you are unsure. If you use multiple values, separate them using a comma",
     "valueValidators": [
       {
