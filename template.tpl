@@ -272,6 +272,7 @@ if(cookiePeriod == 0){
   options = {
     'domain': cookieDomain,
     'path': '/',
+    'samesite': 'none',
     'secure': true,
     'httpOnly':true
   };
@@ -280,6 +281,7 @@ if(cookiePeriod == 0){
   options = {
     'domain': cookieDomain,
     'path': '/',
+    'samesite': 'none',
     'max-age': cookieLength,
     'secure': true,
     'httpOnly':true
