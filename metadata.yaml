@@ -2,9 +2,11 @@ homepage: "https://www.awin.com"
 documentation: "https://www.awin.com"
 versions:
 # Latest version
+  - sha: 64d1ab36b1436d1b9b9e7d00de35f5ffdb77c91c
+    changeNotes: "Fixed Shopify Stores specific issue where the cookie would not be created due to there being no sameSite parameter, as well as there being no early gtmOnSuccess call to proper tag sequencing"
+# Older versions
   - sha: cadfd98273e7ecb6aa64b875c29876b4dc1ab49d
     changeNotes: "Added overwrite cookie domain functionality"
-# Older versions
   - sha: 1d1f1dd94280c6f82e597ecc33d9ae48f95eab9a
     changeNotes: "Updated template to add logging and debugging capabilities as well as fixed some bugs and removed unused features"
   - sha: 8622981fa07be20a2ec2fe4e9e0a0ac35ee703c3
