@@ -272,6 +272,7 @@ if(cookiePeriod == 0){
   options = {
     'domain': cookieDomain,
     'path': '/',
+    'samesite': 'none',
     'secure': true,
     'httpOnly':true
   };
@@ -280,6 +281,7 @@ if(cookiePeriod == 0){
   options = {
     'domain': cookieDomain,
     'path': '/',
+    'samesite': 'none',
     'max-age': cookieLength,
     'secure': true,
     'httpOnly':true
@@ -308,7 +310,6 @@ function SetChannelCookie(){
 //Since the tag now uses an all pages trigger, it needs to know if the user is simply navigating through the website, or visiting it for the first time in his journey.
 if(referrer != undefined && Contains(referrer,websiteDomain)){
   //Navigating through website, halt the progress of the tag.
-  
   data.gtmOnSuccess();
 } else {
   //First visit in the session, proceed with tag behaviour.
